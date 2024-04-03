@@ -131,5 +131,5 @@ inline Bitboard bishop_magics[SQUARE_NB] =
   0x82000002020410aull,
   0x42032125010200ull,
   0xca00401080100ull,
-  0,
+  0x40700404828030ull,
 };

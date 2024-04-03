@@ -7,6 +7,16 @@
 class MoveList {
 public:
   MoveList();
+  void put_first(Move m) {
+    for (int i = 0; i < this->length(); i++) {
+      if (moves[i] == m) {
+	Move temp = moves[0];
+	moves[0] = m;
+	moves[i] = temp;
+	return;
+      }
+    }
+  }
   Move* begin()  { return moves; }
   Move* end()    { return last; }
   int   length() { return last - moves; }

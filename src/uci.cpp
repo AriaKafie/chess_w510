@@ -2,6 +2,7 @@
 #include "uci.h"
 
 #include "position.h"
+#include "search.h"
 
 #include <iostream>
 #include <sstream>
@@ -13,6 +14,9 @@ void position(std::istringstream& iss) {
 
   if (token == "startpos") {
     fen = STARTPOS;
+    iss >> token;
+  } else if (token == "current") {
+    fen = Position::fen();
     iss >> token;
   } else if (token == "fen") {
     while (iss >> token && token != "moves")
@@ -28,19 +32,30 @@ void position(std::istringstream& iss) {
 }
 
 void go(std::istringstream& iss) {
-  std::string token, depth;
-  iss >> token >> depth;
-  if (token == "perft")
-    Perft::go(std::stoi(depth));
-  else if (token == "bench")
-    Perft::bench(std::stoi(depth));
+  std::string mode, arg;
+  if (iss >> mode >> arg) {
+    if (mode == "perft")
+      Perft::go(std::stoi(arg));
+    else if (mode == "bench")
+      Perft::bench(std::stoi(arg));
+    else if (mode == "play") {
+      while (1) {
+        system("clear");
+        std::cout << Position::to_string();
+        Position::do_commit(Search::best_move(std::stoi(arg)));
+      }
+    }
+  }
+  else {
+    Move best_move = Search::best_move(2500);
+    std::cout << "bestmove " << move_to_uci(best_move) << "\n";
+  }
 }
 
 void UCI::loop() {
 
+  system("clear");
   Position::set(STARTPOS);
-  std::cout << Position::to_string();
-    
   std::string cmd, token;
   
   do
@@ -50,10 +65,21 @@ void UCI::loop() {
     iss >> token;
     if (token == "position")
       position(iss);
-    if (token == "d")
+    else if (token == "d")
       std::cout << Position::to_string();
-    if (token == "go")
+    else if (token == "go")
       go(iss);
+    else
+      std::cout
+	<< "commands\n"
+	<< "  go\n"
+	<< "  go perft [depth]\n"
+	<< "  go bench [depth]\n"
+	<< "  go play [milliseconds]\n"
+	<< "  d\n"
+	<< "  position current <moves m1 m2 ... mn>\n"
+	<< "  position startpos <moves m1 m2 ... mn>\n"
+	<< "  position fen [fen] <moves m1 m2 ... mn>\n\n";
   } while (cmd != "quit");
 }
 
