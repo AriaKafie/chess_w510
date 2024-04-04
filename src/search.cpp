@@ -7,6 +7,13 @@
 
 #include <iostream>
 
+constexpr int reduction[MAX_PLY] = {
+  0,0,0,0,0,0,0,0,0,0,
+  2,2,2,2,2,2,2,2,2,2,
+  4,4,4,4,4,4,4,4,4,4,
+  8,8,8,8,8,8,8,8,8,8,
+};
+
 int search(int alpha, int beta, int depth, int ply_from_root) {
   
   if (depth <= 0)
@@ -47,20 +54,24 @@ Move Search::best_move(uint64_t thinktime) {
     
     int alpha = -INFINITE;
     
-    for (Move move : moves) {
+    for (int i = 0; i < moves.length(); i++) {
       
       if (curr_time_millis() - start_time > thinktime) {
         search_cancelled = true;
         break;
       }
       
-      do_move(move);
-      int eval = -search(-INFINITE, -alpha, depth - 1, 0);
-      undo_move(move);
+      do_move(moves[i]);
+      int eval = -search(-INFINITE, -alpha, depth - 1 - reduction[i], 0);
+      if (eval > alpha && reduction[i])
+	eval = -search(-INFINITE, -alpha, depth - 1, 0);
+      undo_move(moves[i]);
+      
       if (eval > alpha) {
 	alpha = eval;
-	best_move = move;
+	best_move = moves[i];
       }
+      
     }
   }
   return best_move;

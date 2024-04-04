@@ -15,9 +15,9 @@ int static_evaluation() {
 
   for (PieceType pt : {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING})
   {
-    for (Bitboard b = bitboards[make_piece(pt, WHITE)]; b; pop_lsb(b))
+    for (Bitboard b = bitboards[make_piece(WHITE, pt)]; b; pop_lsb(b))
       score += square_score<WHITE>(pt, lsb(b));
-    for (Bitboard b = bitboards[make_piece(pt, BLACK)]; b; pop_lsb(b))
+    for (Bitboard b = bitboards[make_piece(BLACK, pt)]; b; pop_lsb(b))
       score -= square_score<BLACK>(pt, lsb(b));
   }
   
