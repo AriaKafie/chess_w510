@@ -43,7 +43,7 @@ inline Bitboard pinmask[SQUARE_NB][SQUARE_NB];
 inline Bitboard main_diagonal[SQUARE_NB];
 inline Bitboard anti_diagonal[SQUARE_NB];
 inline Bitboard file[SQUARE_NB];
-inline uint8_t castle_masks[1 << 6];
+inline uint8_t castle_masks[COLOR_NB][1 << 5];
 
 constexpr Bitboard ALL_SQUARES = 0xffffffffffffffffull;
 constexpr Bitboard FILE_A = 0x8080808080808080ull;
@@ -219,11 +219,6 @@ inline Bitboard generate_occupancy(Bitboard mask, int permutation) {
     pop_lsb(mask);
   }
   return occupancy;
-}
-
-inline uint8_t castle_mask(Bitboard occupied) {
-  constexpr Bitboard mask = square_bb(A1, E1, H1, A8, E8, H8);
-  return castle_masks[(occupied & mask) * 0xc2314a1708abc41ull >> 58];
 }
 
 inline int file_distance(Square a, Square b) {

@@ -10,7 +10,7 @@ inline unsigned long long curr_time_millis() {
 }
 
 typedef uint64_t Bitboard;
-typedef uint16_t Move;
+typedef uint32_t Move;
 typedef uint8_t  Piece;
 typedef uint8_t  PieceType;
 typedef int      Square;
@@ -116,6 +116,10 @@ constexpr Square to_sq(Move m) {
 
 constexpr MoveType type_of(Move m) {
   return m & 0x7000;
+}
+
+inline uint32_t score_of(Move m) {
+  return m & 0xffff0000;
 }
 
 #endif

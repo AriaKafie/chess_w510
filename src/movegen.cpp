@@ -161,4 +161,3 @@ Move* generate_moves(Move* list)
 MoveList::MoveList() :
   last(Position::white_to_move() ? generate_moves<WHITE>(moves) : generate_moves<BLACK>(moves)) {}
 
-

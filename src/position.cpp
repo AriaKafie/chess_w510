@@ -90,31 +90,14 @@ void Position::do_commit(Move m) {
   state_ptr = state_stack;
 }
 
-template<MoveType Type>
 void update_castling_rights() {
 
-  Color them = Position::side_to_move, us = !them;
-
-  uint8_t ClearRights = us == WHITE ? 0b0011 : 0b1100;
-
-  Bitboard FKingStart = square_bb(us == WHITE ? E1 : E8);
-  Bitboard EKingStart = square_bb(us == WHITE ? E8 : E1);
-  Bitboard FRookStart = us == WHITE ? square_bb(A1, H1) : square_bb(A8, H8);
-
-  Piece FKing     = make_piece(us  , KING);
-  Piece FRook     = make_piece(us  , ROOK);
-  Piece EnemyRook = make_piece(them, ROOK);
+  Color us = !Position::side_to_move;
   
-  if constexpr (Type == NORMAL)
-    state_ptr->castling_rights &=
-      castle_mask(bitboards[FKing] & FKingStart | bitboards[FRook] & FRookStart | bitboards[EnemyRook] | EKingStart);
-
-  else if constexpr (Type == PROMOTION)
-    state_ptr->castling_rights &= castle_mask(bitboards[EnemyRook] | FKingStart | FRookStart | EKingStart);
-
-  else if constexpr (Type == SHORTCASTLE || Type == LONGCASTLE)
-    state_ptr->castling_rights &= ClearRights;
-
+  uint64_t magic = us == WHITE ? 0x4860104020003061ull         : 0x1080000400400c21ull;
+  uint64_t mask  = us == WHITE ? square_bb(A1, E1, H1, A8, H8) : square_bb(A8, E8, H8, A1, H1);
+  
+  state_ptr->castling_rights &= castle_masks[us][(bitboards[us] & mask) * magic >> 59];
 }
 
 void do_move(Move m) {
@@ -150,7 +133,7 @@ void do_move(Move m) {
     bitboards[us] ^= from_to;
     board[to] = board[from];
     board[from] = NO_PIECE;
-    update_castling_rights<NORMAL>();
+    update_castling_rights();
     return;
   case PROMOTION:
     bitboards[board[to]] &= zero_to;
@@ -160,7 +143,7 @@ void do_move(Move m) {
     bitboards[us] ^= from_to;
     board[to] = Queen;
     board[from] = NO_PIECE;
-    update_castling_rights<PROMOTION>();
+    update_castling_rights();
     return;
   case SHORTCASTLE:
   {
@@ -179,7 +162,7 @@ void do_move(Move m) {
     board[rook_from] = NO_PIECE;
     board[king_to] = King;
     board[rook_to] = Rook;
-    update_castling_rights<SHORTCASTLE>();
+    update_castling_rights();
   }
     return;
   case LONGCASTLE:
@@ -199,7 +182,7 @@ void do_move(Move m) {
     board[rook_from] = NO_PIECE;
     board[king_to] = King;
     board[rook_to] = Rook;
-    update_castling_rights<LONGCASTLE>();
+    update_castling_rights();
   }
   return;
   case ENPASSANT:
@@ -307,4 +290,5 @@ void undo_move(Move m) {
     return;
   }
 }
+
 

@@ -4,6 +4,7 @@
 #include "position.h"
 #include "search.h"
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
 
@@ -69,6 +70,12 @@ void UCI::loop() {
       std::cout << Position::to_string();
     else if (token == "go")
       go(iss);
+    else if (token == "view") {
+      std::ifstream src("uci.cpp");
+      while (std::getline(src, token))
+	std::cout << token << "\n";
+    }
+      
     else
       std::cout
 	<< "commands\n"
