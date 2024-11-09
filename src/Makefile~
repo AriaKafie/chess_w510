@@ -1,0 +1,4 @@
+all:
+	g++ -w -O3 *cpp -ochess
+clean:
+	rm *~ chess

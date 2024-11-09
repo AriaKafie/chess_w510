@@ -1,6 +1,7 @@
 
 #include "bitboard.h"
 
+#include <cstring>
 #include <chrono>
 #include <initializer_list>
 #include <iostream>
@@ -36,35 +37,41 @@ std::string to_string(Bitboard bb) {
   return ss.str();
 }
 
-uint64_t generate_magic(const uint64_t mask) {
+uint64_t generate_magic(uint64_t mask)
+{
+    static int magics_generated = 0;
+    
+    std::cout << "\rloading " << (100 * magics_generated / 127) << "%";
+    std::cout.flush();
+    magics_generated++;
+    
+    int permutations = 1 << popcount(mask);
 
-  static int magics_generated = 0;
+    uint64_t occupied[4096];
+    bool visited[4096], failed;
 
-  int bitcount = popcount(mask);
-  
-  std::cout << "\rloading " << (100 * magics_generated / 127) << "%";
-  std::cout.flush();
-  magics_generated++;
+    for (int p = 0; p < permutations; p++)
+        occupied[p] = generate_occupancy(mask, p);
 
-  std::mt19937_64 rng(0);
-  
-  std::vector<Bitboard> occupancies;
-  std::vector<int> keys;
-  
-  for (int i = 0; i < 1 << bitcount; i++)
-    occupancies.push_back(generate_occupancy(mask, i));
-  
-  uint64_t magic;
-  
-  do
-  {
-    keys.clear();
-    magic = rng() & rng() & rng();
-    for (Bitboard o : occupancies)
-      keys.push_back(o * magic >> 64 - bitcount);
-  } while (has_duplicates(keys));
+    std::mt19937_64 rng(0);
+    uint64_t magic;
 
-  return magic;
+    do
+    {
+        magic = rng() & rng() & rng();
+        memset(visited, false, permutations);
+
+        for (int p = 0, key = 0; p < permutations; key = occupied[++p] * magic >> 64 - popcount(mask))
+        {
+            if (failed = visited[key]; failed)
+                break;
+
+            visited[key] = true;
+        }
+
+    } while (failed);
+
+    return magic;
 }
 
 void init_magics(PieceType pt, Bitboard* attacks, Bitboard* xray) {
