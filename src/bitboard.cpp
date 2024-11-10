@@ -41,17 +41,15 @@ uint64_t generate_magic(uint64_t mask)
 {
     static int magics_generated = 0;
     
-    std::cout << "\rloading " << (100 * magics_generated / 127) << "%";
+    std::cout << "\rloading " << (100 * magics_generated++ / 127) << "%";
     std::cout.flush();
-    magics_generated++;
     
     int permutations = 1 << popcount(mask);
 
     uint64_t occupied[4096];
     bool visited[4096], failed;
 
-    for (int p = 0; p < permutations; p++)
-        occupied[p] = generate_occupancy(mask, p);
+    for (int p = 0; p < permutations; occupied[p] = generate_occupancy(mask, p), p++);
 
     std::mt19937_64 rng(0);
     uint64_t magic;

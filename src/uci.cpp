@@ -76,7 +76,7 @@ void UCI::loop() {
 	std::cout << token << "\n";
     }
       
-    else
+    else if (cmd != "quit")
       std::cout
 	<< "commands\n"
 	<< "  go\n"

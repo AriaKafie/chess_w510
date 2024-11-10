@@ -42,11 +42,11 @@ void Perft::go(int depth) {
     std::cout << nodes << "\n";
     total_nodes += nodes;
   }
-  std::cout << "\nnodes searched: " << total_nodes << "\n\n";
+  std::cout << "\nNodes searched: " << total_nodes << "\n\n";
 }
 
 void Perft::bench(int depth) {
-  std::cout << "depth  nodes       ms      nodes\\second\n" << std::left;
+  std::cout << "Depth  Nodes       ms      Nodes\\second\n" << std::left;
   MoveList moves;
   for (int d = 1; d <= depth; d++) {
     nodes = 0;
